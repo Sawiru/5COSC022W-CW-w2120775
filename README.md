@@ -74,7 +74,7 @@ src/main/java/com/smartcampus/
 
 **1. Clone the repository**
 ```bash
-git clone https://github.com/YOUR_USERNAME/smart-campus-api.git
+git clone https://github.com/Sawiru/5COSC022W-CW-w2120775.git
 cd smart-campus-api
 ```
 
@@ -164,9 +164,9 @@ curl -X POST http://localhost:8080/api/v1/sensors \
 
 By default, JAX-RS uses a **request-scoped** lifecycle, meaning a brand new instance of each resource class is instantiated for every incoming HTTP request and discarded immediately after the response is sent. This is the opposite of a **singleton**, where one shared instance handles all requests for the entire lifetime of the application.
 
-Because of the request-scoped default, instance variables inside a resource class cannot be used to store persistent data — they are reset on every request. To maintain state across requests, the `DataStore` class uses `static ConcurrentHashMap` fields, which exist at the class level and survive for the entire application lifetime.
+Because of the request scoped default, instance variables inside a resource class cannot be used to store persistent data — they are reset on every request. To maintain state across requests, the `DataStore` class uses `static ConcurrentHashMap` fields, which exist at the class level and survive for the entire application lifetime.
 
-`ConcurrentHashMap` is chosen over a regular `HashMap` because JAX-RS handles concurrent requests on multiple threads simultaneously. A regular `HashMap` is not thread-safe — simultaneous writes from two threads can corrupt its internal structure entirely, causing data loss or unpredictable behaviour. `ConcurrentHashMap` uses internal segment locking to allow safe concurrent reads and writes without requiring manual `synchronized` blocks, effectively preventing race conditions and guaranteeing data integrity across all requests.
+`ConcurrentHashMap` is chosen over a regular `HashMap` because JAX-RS handles concurrent requests on multiple threads simultaneously. A regular `HashMap` is not thread safe simultaneous writes from two threads can corrupt its internal structure entirely, causing data loss or unpredictable behaviour. `ConcurrentHashMap` uses internal segment locking to allow safe concurrent reads and writes without requiring manual `synchronized` blocks, effectively preventing race conditions and guaranteeing data integrity across all requests.
 
 ---
 
@@ -183,7 +183,7 @@ Because of the request-scoped default, instance variables inside a resource clas
 }
 ```
 
-This makes the API **self-documenting** — clients discover all available actions at runtime by following the links provided, in the same way a browser navigates a website without needing to know URLs in advance.
+This makes the API **self-documenting** clients discover all available actions at runtime by following the links provided, in the same way a browser navigates a website without needing to know URLs in advance.
 
 Compared to static documentation, HATEOAS is significantly superior because static docs become outdated the moment a URL structure changes, forcing developers to update every client application manually. With hypermedia links, clients automatically adapt to URL changes since they always follow what the server provides rather than relying on hard-coded paths. This loose coupling between client and server is considered a hallmark of a mature, well-designed RESTful API.
 
@@ -191,9 +191,9 @@ Compared to static documentation, HATEOAS is significantly superior because stat
 
 ### Part 2 — Q3: Returning Full Objects vs IDs in a List
 
-When returning a list of rooms, returning **full objects** gives the client everything they need in a single request, which is convenient but costly in terms of bandwidth — especially when there are hundreds of rooms each containing many fields. A large payload also increases client-side parsing time.
+When returning a list of rooms, returning **full objects** gives the client everything they need in a single request, which is convenient but costly in terms of bandwidth especially when there are hundreds of rooms each containing many fields. A large payload also increases client-side parsing time.
 
-Returning **only IDs** is very lightweight on the network but forces the client to make an additional `GET` request for every single room they want details about, which can result in dozens of extra round trips — a well-known anti-pattern sometimes called the N+1 problem.
+Returning **only IDs** is very lightweight on the network but forces the client to make an additional `GET` request for every single room they want details about, which can result in dozens of extra round trips a well-known anti-pattern sometimes called the N+1 problem.
 
 The recommended approach for most APIs is to return full objects in list responses but keep them **lean** — including the resource's own fields while excluding deeply nested relationships. For example, a room list should include the room's own data but not embed the full sensor objects inside it; returning just the sensor IDs at that level is sufficient. This balances network efficiency with client convenience.
 
@@ -213,7 +213,7 @@ This property makes `DELETE` safe to retry in unreliable network conditions wher
 
 The `@Consumes(MediaType.APPLICATION_JSON)` annotation declares a contract to the JAX-RS runtime that a given endpoint will only accept requests carrying a `Content-Type` header of `application/json`. 
 
-If a client sends data with a different `Content-Type` — such as `text/plain` or `application/xml` — the JAX-RS runtime intercepts the request **before it ever reaches the method body** and automatically returns an **HTTP 415 Unsupported Media Type** response. The resource method is never executed. No manual content-type checking is required inside the code — the framework enforces the declared contract entirely on its own. This keeps resource methods clean and focused purely on business logic.
+If a client sends data with a different `Content-Type` such as `text/plain` or `application/xml` the JAX-RS runtime intercepts the request **before it ever reaches the method body** and automatically returns an **HTTP 415 Unsupported Media Type** response. The resource method is never executed. No manual content-type checking is required inside the code — the framework enforces the declared contract entirely on its own. This keeps resource methods clean and focused purely on business logic.
 
 ---
 
@@ -221,7 +221,7 @@ If a client sends data with a different `Content-Type` — such as `text/plain` 
 
 Using `@QueryParam` for filtering — as in `GET /api/v1/sensors?type=CO2` — is considered superior to embedding the filter value directly in the URL path, such as `GET /api/v1/sensors/type/CO2`, for several reasons.
 
-**Query parameters are optional by nature**, meaning the same single endpoint cleanly handles both the filtered and unfiltered case without requiring two separate method definitions. Path segments, by contrast, represent **resource identity and hierarchy** — they are meant to locate a specific resource, not to filter a collection.
+**Query parameters are optional by nature**, meaning the same single endpoint cleanly handles both the filtered and unfiltered case without requiring two separate method definitions. Path segments, by contrast, represent **resource identity and hierarchy** they are meant to locate a specific resource, not to filter a collection.
 
 Multiple filters also compose naturally with query parameters, for example `?type=CO2&status=ACTIVE`, whereas doing this with path segments would produce a deeply nested and confusing URL structure. Query parameters are also the widely accepted convention understood by all HTTP clients, proxies, and caching layers, making the API more predictable and easier to consume for developers.
 
@@ -231,9 +231,9 @@ Multiple filters also compose naturally with query parameters, for example `?typ
 
 The Sub-Resource Locator pattern works by having a method in a parent resource class **return an instance of a dedicated child resource class** rather than handling all nested paths directly in one place. In this implementation, `SensorResource` delegates anything under `/{sensorId}/readings` to a dedicated `SensorReadingResource` class.
 
-The primary benefit is **separation of concerns** — each class has one clear, well-defined responsibility. If every nested endpoint were defined inside a single monolithic resource class, the file would grow extremely large, becoming difficult to read, test, debug, and maintain as the API evolves. By delegating to sub-resource classes, each class remains small and focused.
+The primary benefit is **separation of concerns** each class has one clear, well-defined responsibility. If every nested endpoint were defined inside a single monolithic resource class, the file would grow extremely large, becoming difficult to read, test, debug, and maintain as the API evolves. By delegating to sub resource classes, each class remains small and focused.
 
-It also improves **reusability** — `SensorReadingResource` could in principle be instantiated from multiple parent resources if the business domain required it. This approach mirrors good object-oriented design principles and reflects how large production APIs are structured in industry, where controllers are kept thin and logic is distributed across focused, single-responsibility classes.
+It also improves **reusability** `SensorReadingResource` could in principle be instantiated from multiple parent resources if the business domain required it. This approach mirrors good object-oriented design principles and reflects how large production APIs are structured in industry, where controllers are kept thin and logic is distributed across focused, single responsibility classes.
 
 ---
 
