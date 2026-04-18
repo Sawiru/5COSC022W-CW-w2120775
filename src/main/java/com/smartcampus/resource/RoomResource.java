@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.Context;
 
 @Path("/rooms")
 @Produces(MediaType.APPLICATION_JSON)
@@ -35,7 +37,7 @@ public class RoomResource {
     
     // POST /api/v1/rooms - create a new room
     @POST
-    public Response createRoom(Room room) {
+    public Response createRoom(Room room, @Context UriInfo uriInfo) {
         if (room.getId() == null || room.getId().isEmpty()) {
             Map<String, String> error = new HashMap<String, String>();
             error.put("error", "400 Bad Request");
@@ -43,12 +45,17 @@ public class RoomResource {
             return Response.status(400).entity(error).build();
     }
         
-    DataStore.rooms.put(room.getId(), room);
+        DataStore.rooms.put(room.getId(), room);
+
+        // Build the location header
+        java.net.URI location = uriInfo.getAbsolutePathBuilder()
+                .path(room.getId())
+                .build();
 
         Map<String, Object> response = new HashMap<String, Object>();
         response.put("message", "Room created successfully.");
         response.put("room", room);
-        return Response.status(201).entity(response).build();
+        return Response.created(location).entity(response).build();
 }
 
 // GET /api/v1/rooms/{roomId} — get a specific room
