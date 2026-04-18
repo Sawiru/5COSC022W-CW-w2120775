@@ -44,6 +44,12 @@ public class RoomResource {
             error.put("message", "Room ID is required.");
             return Response.status(400).entity(error).build();
     }
+        if (DataStore.rooms.containsKey(room.getId())) {
+        Map<String, String> error = new HashMap<String, String>();
+        error.put("error", "409 Conflict");
+        error.put("message", "A room with ID " + room.getId() + " already exists.");
+        return Response.status(409).entity(error).build();
+    }
         
         DataStore.rooms.put(room.getId(), room);
 
@@ -88,7 +94,8 @@ public class RoomResource {
         }
 
         // Safety check — block deletion if sensors are still assigned
-        if (!room.getSensorIds().isEmpty()) {
+        List<String> sensorIds = room.getSensorIds();
+        if (sensorIds != null && !sensorIds.isEmpty()) {
             throw new RoomNotEmptyException(roomId);
         }
 
