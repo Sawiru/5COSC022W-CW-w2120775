@@ -158,9 +158,9 @@ curl -X POST http://localhost:8080/api/v1/sensors \
 
 ---
 
-## Report — Question Answers
+## Report - Question Answers
 
-### Part 1 — Q1: JAX-RS Resource Lifecycle
+### Part 1 - Q1: JAX-RS Resource Lifecycle
 
 By default, JAX-RS uses a **request-scoped** lifecycle, meaning a brand new instance of each resource class is instantiated for every incoming HTTP request and discarded immediately after the response is sent. This is the opposite of a **singleton**, where one shared instance handles all requests for the entire lifetime of the application.
 
@@ -170,7 +170,7 @@ Because of the request scoped default, instance variables inside a resource clas
 
 ---
 
-### Part 1 — Q2: What is HATEOAS?
+### Part 1 - Q2: What is HATEOAS?
 
 **HATEOAS** (Hypermedia as the Engine of Application State) is the principle that API responses should include hypermedia links guiding the client to related actions and resources, rather than requiring clients to construct URLs themselves. For example, a response returning a room object would also include embedded links such as:
 
@@ -189,7 +189,7 @@ Compared to static documentation, HATEOAS is significantly superior because stat
 
 ---
 
-### Part 2 — Q3: Returning Full Objects vs IDs in a List
+### Part 2 - Q3: Returning Full Objects vs IDs in a List
 
 When returning a list of rooms, returning **full objects** gives the client everything they need in a single request, which is convenient but costly in terms of bandwidth especially when there are hundreds of rooms each containing many fields. A large payload also increases client-side parsing time.
 
@@ -199,7 +199,7 @@ The recommended approach for most APIs is to return full objects in list respons
 
 ---
 
-### Part 2 — Q4: Is DELETE Idempotent?
+### Part 2 - Q4: Is DELETE Idempotent?
 
 Yes, the `DELETE` operation is **idempotent** in this implementation. Idempotency means that sending the same request multiple times produces the same server state as sending it once.
 
@@ -209,7 +209,7 @@ This property makes `DELETE` safe to retry in unreliable network conditions wher
 
 ---
 
-### Part 3 — Q5: What Happens if the Wrong Content-Type is Sent to a `@Consumes` Endpoint
+### Part 3 - Q5: What Happens if the Wrong Content-Type is Sent to a `@Consumes` Endpoint
 
 The `@Consumes(MediaType.APPLICATION_JSON)` annotation declares a contract to the JAX-RS runtime that a given endpoint will only accept requests carrying a `Content-Type` header of `application/json`. 
 
@@ -217,7 +217,7 @@ If a client sends data with a different `Content-Type` such as `text/plain` or `
 
 ---
 
-### Part 3 — Q6: `@QueryParam` vs Path Segment for Filtering
+### Part 3 - Q6: `@QueryParam` vs Path Segment for Filtering
 
 Using `@QueryParam` for filtering — as in `GET /api/v1/sensors?type=CO2` — is considered superior to embedding the filter value directly in the URL path, such as `GET /api/v1/sensors/type/CO2`, for several reasons.
 
@@ -227,7 +227,7 @@ Multiple filters also compose naturally with query parameters, for example `?typ
 
 ---
 
-### Part 4 — Q7: Sub-Resource Locator Pattern Benefits
+### Part 4 - Q7: Sub-Resource Locator Pattern Benefits
 
 The Sub-Resource Locator pattern works by having a method in a parent resource class **return an instance of a dedicated child resource class** rather than handling all nested paths directly in one place. In this implementation, `SensorResource` delegates anything under `/{sensorId}/readings` to a dedicated `SensorReadingResource` class.
 
@@ -237,7 +237,7 @@ It also improves **reusability** `SensorReadingResource` could in principle be i
 
 ---
 
-### Part 5 — Q8: Why 422 is More Semantically Accurate Than 404 for a Missing `roomId` Reference
+### Part 5 - Q8: Why 422 is More Semantically Accurate Than 404 for a Missing `roomId` Reference
 
 **HTTP 404 Not Found** is intended to signal that the URL or endpoint being requested does not exist on the server. However, when a client sends a `POST` request to `/api/v1/sensors` with a `roomId` that does not exist in the system, the URL `/api/v1/sensors` is completely valid and reachable — the problem is not with the endpoint itself, but with the **content inside the request body**.
 
@@ -247,7 +247,7 @@ Returning a 404 here would mislead the client into believing they called a wrong
 
 ---
 
-### Part 5 — Q9: Cybersecurity Risks of Exposing Stack Traces
+### Part 5 - Q9: Cybersecurity Risks of Exposing Stack Traces
 
 Exposing raw Java stack traces to external API consumers presents several serious cybersecurity risks.
 
